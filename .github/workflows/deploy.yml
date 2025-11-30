@@ -30,17 +30,10 @@ jobs:
           script: |
             cd /home/ubuntu/app
 
-            echo "🛑 Removing ALL containers"
-            docker rm -f $(docker ps -aq) || true
+            # 🔥 Recreate .env file on EC2
+            echo "${{ secrets.ENV_FILE }}" > .env
 
-            echo "🧼 Removing ALL images"
-            docker rmi -f $(docker images -aq) || true
-
-            echo "🧹 Removing ALL volumes"
-            docker volume prune -f || true
-
-            echo "🛠️ Starting fresh compose build"
+            # Restart services
+            docker-compose down -v || true
             docker-compose up -d --build
-
-            echo "🧽 Cleanup"
-            docker system prune -f
+            docker system prune -f || true
